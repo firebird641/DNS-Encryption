@@ -1,2 +1,3 @@
 # DNS-Encryption
-A simple implementation for encrypting DNS queries between two devices
+
+A simple Python Implementation for encrypting DNS queries between two devices using Elliptic Curve(25519) Cryptography.

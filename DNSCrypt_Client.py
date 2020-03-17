@@ -40,21 +40,21 @@ def decryption(msg, skbob):
 my_secret = import_private_key("rdSX7bH8SDUMlp8ITnlm6MEvYb5IMmrch/Gjw51zND0=")
 resolver_public = import_public_key("rqp9WM4KMc6o1qKncyf2DmybehvocXiXz3aFGmGYC2Q=")
 
-resolver = "192.168.1.1"
+resolver = "1.2.3.4"
 
 class ECC(Packet):
     name = "DNSCrypt"
     fields_desc = [ StrLenField("crypto", '') ]
 
 split_layers(IP, ICMP)
-bind_layers(UDP, ECC, sport=3216)
+bind_layers(UDP, ECC, sport=3215)
 bind_layers(UDP, ECC, dport=3216)
 
 def resolve_dns(hostname):
         encrypted_request = encryption(hostname,resolver_public).replace('\n','')
-        packet = IP(dst=resolver)/UDP(sport=3216,dport=3216)/ECC(crypto=encrypted_request)
+        packet = IP(dst=resolver)/UDP(sport=3215,dport=3216)/ECC(crypto=encrypted_request)
         try:
-                ans = sr1(packet,verbose=0,timeout=2)
+                ans = sr1(packet,verbose=0,timeout=4)
                 c = decryption(ans[Raw].load.decode().replace("\n",''), my_secret)
                 return c
         except:
@@ -62,7 +62,6 @@ def resolve_dns(hostname):
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.bind(('0.0.0.0', 53))
-print('Listening...')
 while True:
          message, address = s.recvfrom(8192)
          if len(message)>0:

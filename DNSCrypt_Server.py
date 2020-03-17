@@ -47,22 +47,20 @@ class ECC(Packet):
 
 def resolve_local(hostname):
     ip = socket.gethostbyname(hostname)
-    print(hostname+" has been resolved to "+ip)
     return ip
 
-bind_layers(UDP, ECC, sport=3216)
+bind_layers(UDP, ECC, sport=3215)
 bind_layers(UDP, ECC, dport=3216)
 
 def handle_resolver(p):
-    if p.haslayer(UDP) and p.haslayer(ECC) and p[IP].dst=="192.168.1.1":
+    if p.haslayer(UDP) and p.haslayer(ECC) and p[IP].dst=="192.168.178.56":
          try:
              packetload = p[ECC].crypto.decode().replace("\n",'')
              payload = decryption(packetload,my_secret)
              hostname = payload.strip()
              ip = encryption(resolve_local(hostname),server_public).replace("\n",'')
-             send(IP(dst=p[IP].src)/UDP(sport=3216,dport=3216)/ECC(crypto=ip),verbose=0)
+             send(IP(dst=p[IP].src)/UDP(sport=3216,dport=3215)/ECC(crypto=ip),verbose=0)
          except:
              pass
 
-print("Ready...")
 sniff(prn=handle_resolver)
